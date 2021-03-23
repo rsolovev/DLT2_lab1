@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Web 3 Demo</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <!--    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.0/web3.min.js"
+            integrity="sha512-ppuvbiAokEJLjOUQ24YmpP7tTaLRgzliuldPRZ01ul6MhRC+B8LzcVkXmUsDee7ne9chUfApa9/pWrIZ3rwTFQ=="
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+
+<body>
+<h1>lab 1 Sport Complex Coin</h1>
+<br>
+<br>
+<button id="div" onclick="getBalance();"
+        class="div">Check balance
+</button>
+<br>
+<br>
+<br>
+<label for="receiver">
+    <div>To Account</div>
+    <input id="receiver" type="text">
+</label>
+<label for="amm">
+    <div># of tokens</div>
+    <input id="amm" type="text">
+</label>
+<button id="res" onclick="transfer(document.getElementById('receiver').value, document.getElementById('amm').value);"
+        class="div">Transfer tokens
+</button>
+<br>
+<br>
+<br>
+<button id="tok" onclick="getCoin()"
+        class="div">Get 1 token
+</button>
+<br>
+<br>
+<br>
+<button id="sup" onclick="checkSupply()"
+        class="div">Check total supply
+</button>
+
+<script type="text/javascript">
+
+    async function loadWeb3() {
+        if (window.ethereum) {
+            window.web3 = new Web3(window.ethereum);
+            window.ethereum.enable();
+        }
+    }
+
+
+    async function loadContract() {
+        return new window.web3.eth.Contract([
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "tokenOwner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "spender",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "tokens",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Approval",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "tokens",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Transfer",
+                "type": "event"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "account",
+                        "type": "address"
+                    }
+                ],
+                "name": "getCoin",
+                "outputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "receiver",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "numTokens",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "transfer",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "payable": true,
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "buyer",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "numTokens",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "transferFrom",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "delegate",
+                        "type": "address"
+                    }
+                ],
+                "name": "allowance",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "account",
+                        "type": "address"
+                    }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "decimals",
+                "outputs": [
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "name",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "test",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "totalSupply",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ], "0x36894816d2D5153FD7D076AFca0370AFFcFDdcc8");
+    }
+
+
+    async function getCoin() {
+        const account = await getCurrentAccount();
+        window.navigator.geolocation.getCurrentPosition(
+            async function (pos) {
+                console.log(pos);
+                console.log(
+                    distance(pos.coords.longitude, pos.coords.latitude, 55.7512495, 48.742276)
+                );
+                let dist = distance(pos.coords.longitude, pos.coords.latitude, 55.7512495, 48.742276)
+                if (dist <= 30) {
+                    alert("Congratulations! You are near SC (" + dist +" meters), get your token")
+                    await window.contract.methods.getCoin(account).send({from: account});
+                } else {
+                    alert("You are too far, no tokens for you!!!!!!")
+                }
+            });
+
+
+    }
+
+    async function checkSupply() {
+        const winn = await window.contract.methods.totalSupply().call();
+        alert("Tokens left in supply: " + winn)
+        console.log(winn)
+        return winn
+    }
+
+    async function transfer(receiver, amm) {
+        const account = await getCurrentAccount();
+        await window.contract.methods.transfer(receiver, amm)
+            .send({from: account, value: 343000000000000});
+    }
+
+    async function getBalance() {
+        const account = await getCurrentAccount();
+        const winn = await window.contract.methods.balanceOf(account).call();
+        alert("Your balance is "+ winn + " SCC")
+        console.log(winn)
+        return winn
+    }
+
+    async function getCurrentAccount() {
+        const accounts = await window.web3.eth.getAccounts();
+        console.log(accounts[0])
+        return accounts[0];
+    }
+
+    async function load() {
+        await loadWeb3();
+        window.contract = await loadContract();
+    }
+
+    if (typeof (Number.prototype.toRad) === "undefined") {
+        Number.prototype.toRad = function () {
+            return this * Math.PI / 180;
+        }
+    }
+
+    function distance(lon1, lat1, lon2, lat2) {
+        var R = 6371; // Radius of the earth in km
+        var dLat = (lat2 - lat1).toRad();  // Javascript functions in radians
+        var dLon = (lon2 - lon1).toRad();
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c; // Distance in km
+        return d;
+    }
+
+
+    load();
+</script>
+</body>
+
+</html>
